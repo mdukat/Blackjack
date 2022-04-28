@@ -26,6 +26,9 @@ const spectators = {};
 let dealer = null;
 let gameOn = null;
 
+// Antycheat - theClient.balance
+// Player might change balance before starting the game, we overwrite this value on method=join
+const defaultBalance = 5000;
 
 
 wss.on("connection", (ws) => { // wsServer || wss AND request || connection
@@ -107,6 +110,10 @@ wss.on("connection", (ws) => { // wsServer || wss AND request || connection
         // Max players reached
         return;
       }
+      
+      // Antycheat - theClient.balance
+      // Overwrite player balance on join
+      theClient.balance = defaultBalance;
 
       // Push unique Id to the client
       theClient.clientId = clientId;
@@ -229,6 +236,10 @@ wss.on("connection", (ws) => { // wsServer || wss AND request || connection
       const theClient = result.theClient;
       const players = result.players;
       const spectators = result.spectators;
+      
+      // Antycheat - theClient.balance
+      // method=isReady pushes theClient to every spectator
+      // TODO check theClient balance against server-side theClient
 
       const payLoad = {
         method: "isReady",
@@ -245,6 +256,10 @@ wss.on("connection", (ws) => { // wsServer || wss AND request || connection
       const theClient = result.theClient;
       const players = result.players;
       const spectators = result.spectators;
+      
+      // Antycheat - theClient.balance
+      // method=hasLeft pushes theClient to every spectator
+      // TODO check theClient balance against server-side theClient
 
       const payLoad = {
         method: "hasLeft",
@@ -363,6 +378,10 @@ wss.on("connection", (ws) => { // wsServer || wss AND request || connection
 
       game.players = players;
       game.playerSlotHTML = playerSlotHTML;
+      
+      // Antycheat - theClient.balance
+      // method=joinTable pushes theClient to players array and every spectator
+      // TODO check theClient balance against server-side theClient
 
       const payLoad = {
         method: "joinTable",
@@ -553,6 +572,10 @@ wss.on("connection", (ws) => { // wsServer || wss AND request || connection
     if (result.method === "resetRound") {
       const spectators = result.spectators;
       const theClient = result.theClient;
+      
+      // Antycheat - theClient.balance
+      // method=resetRound pushes theClient to every spectator
+      // TODO check theClient balance against server-side theClient
 
       const payLoad = {
         method: "resetRound",
@@ -657,6 +680,10 @@ wss.on("connection", (ws) => { // wsServer || wss AND request || connection
     if (result.method === "dealersHiddenCard") {
       const spectators = result.spectators;
       const dealersHiddenCard = result.dealersHiddenCard;
+      
+      // Antycheat - dealersHiddenCard
+      // method=dealersHiddenCard pushes hidden card value to clients
+      // TODO send hidden card when it's needed
 
       const payLoad = {
         method: "dealersHiddenCard",
