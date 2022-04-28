@@ -250,6 +250,7 @@ function clientIsReady() {
     players: players,
     spectators: spectators,
     theClient: theClient,
+    gameId: gameId,
   };
   ws.send(JSON.stringify(payLoad));
 }
@@ -260,6 +261,7 @@ function clientHasLeft() {
     players: players,
     spectators: spectators,
     theClient: theClient,
+    gameId: gameId,
   };
   ws.send(JSON.stringify(payLoad));
 }
@@ -368,6 +370,7 @@ function resetRound() {
     method: "resetRound",
     spectators: spectators,
     theClient: theClient,
+    gameId: gameId,
   };
   ws.send(JSON.stringify(payLoad));
 }

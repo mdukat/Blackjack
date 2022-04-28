@@ -7,6 +7,8 @@ const WebSocket = require("ws")
 
 const wss = new WebSocket.Server({ server:server })
 
+// TODO Calculate anticheat balance based on bet in current round
+
 
 // Serve all the static files, (ex. index.html app.js style.css)
 app.use(express.static("public/"));
@@ -26,6 +28,9 @@ const spectators = {};
 let dealer = null;
 let gameOn = null;
 
+// Antycheat - theClient.balance
+// Player might change balance before starting the game, we overwrite this value on method=join
+const defaultBalance = 5000;
 
 
 wss.on("connection", (ws) => { // wsServer || wss AND request || connection
@@ -107,6 +112,10 @@ wss.on("connection", (ws) => { // wsServer || wss AND request || connection
         // Max players reached
         return;
       }
+      
+      // Antycheat - theClient.balance
+      // Overwrite player balance on join
+      theClient.balance = defaultBalance;
 
       // Push unique Id to the client
       theClient.clientId = clientId;
@@ -226,14 +235,28 @@ wss.on("connection", (ws) => { // wsServer || wss AND request || connection
     }
 
     if (result.method === "isReady") {
-      const theClient = result.theClient;
+      let theClient = result.theClient;
       const players = result.players;
       const spectators = result.spectators;
+      const gameId = result.gameId;
+      
+      // Antycheat - theClient.balance
+      // method=isReady pushes theClient to every spectator
+
+      let serverTheClient = null;
+      games[gameId]['players'].forEach((c) => {
+        if (c['clientId'] == theClient['clientId']){
+          serverTheClient = c;
+        }
+      });
+
+      theClient.balance = serverTheClient.balance;
 
       const payLoad = {
         method: "isReady",
         players: players,
         theClient: theClient,
+        gameId: gameId,
       };
 
       spectators.forEach((c) => {
@@ -242,15 +265,29 @@ wss.on("connection", (ws) => { // wsServer || wss AND request || connection
     }
 
     if (result.method === "hasLeft") {
-      const theClient = result.theClient;
+      let theClient = result.theClient;
       const players = result.players;
       const spectators = result.spectators;
+      const gameId = result.gameId;
+      
+      // Antycheat - theClient.balance
+      // method=hasLeft pushes theClient to every spectator
+
+      let serverTheClient = null;
+      games[gameId]['players'].forEach((c) => {
+        if (c['clientId'] == theClient['clientId']){
+          serverTheClient = c;
+        }
+      });
+
+      theClient.balance = serverTheClient.balance;
 
       const payLoad = {
         method: "hasLeft",
         players: players,
         spectators: spectators,
         theClient: theClient,
+        gameId: gameId,
       };
 
       spectators.forEach((c) => {
@@ -347,6 +384,10 @@ wss.on("connection", (ws) => { // wsServer || wss AND request || connection
       const spectators = result.spectators;
       const players = result.players;
       const playerSlotHTML = result.playerSlotHTML;
+
+      // Antycheat - theClient.balance
+      // method=joinTable pushes theClient to players array and every spectator
+      theClient.balance = defaultBalance;
 
       // Push client to players array
       players.push(theClient);
@@ -552,7 +593,20 @@ wss.on("connection", (ws) => { // wsServer || wss AND request || connection
 
     if (result.method === "resetRound") {
       const spectators = result.spectators;
-      const theClient = result.theClient;
+      let theClient = result.theClient;
+      const gameId = result.gameId;
+      
+      // Antycheat - theClient.balance
+      // method=resetRound pushes theClient to every spectator
+
+      let serverTheClient = null;
+      games[gameId]['players'].forEach((c) => {
+        if (c['clientId'] == theClient['clientId']){
+          serverTheClient = c;
+        }
+      });
+
+      theClient.balance = serverTheClient.balance;
 
       const payLoad = {
         method: "resetRound",
@@ -657,6 +711,10 @@ wss.on("connection", (ws) => { // wsServer || wss AND request || connection
     if (result.method === "dealersHiddenCard") {
       const spectators = result.spectators;
       const dealersHiddenCard = result.dealersHiddenCard;
+      
+      // Antycheat - dealersHiddenCard
+      // method=dealersHiddenCard pushes hidden card value to clients
+      // TODO send hidden card when it's needed
 
       const payLoad = {
         method: "dealersHiddenCard",
