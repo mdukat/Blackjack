@@ -1,4 +1,4 @@
-# Blackjack-Game-Multiplayer
+# Blackjack
 
 ![Game Screenshot](https://i.ibb.co/S3vjPCX/blackjack-background.jpg)
 
