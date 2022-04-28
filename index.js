@@ -233,18 +233,28 @@ wss.on("connection", (ws) => { // wsServer || wss AND request || connection
     }
 
     if (result.method === "isReady") {
-      const theClient = result.theClient;
+      let theClient = result.theClient;
       const players = result.players;
       const spectators = result.spectators;
+      const gameId = result.gameId;
       
       // Antycheat - theClient.balance
       // method=isReady pushes theClient to every spectator
-      // TODO check theClient balance against server-side theClient
+
+      let serverTheClient = null;
+      games[gameId]['players'].forEach((c) => {
+        if (c['clientId'] == theClient['clientId']){
+          serverTheClient = c;
+        }
+      });
+
+      theClient.balance = serverTheClient.balance;
 
       const payLoad = {
         method: "isReady",
         players: players,
         theClient: theClient,
+        gameId: gameId,
       };
 
       spectators.forEach((c) => {

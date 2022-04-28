@@ -250,6 +250,7 @@ function clientIsReady() {
     players: players,
     spectators: spectators,
     theClient: theClient,
+    gameId: gameId,
   };
   ws.send(JSON.stringify(payLoad));
 }
