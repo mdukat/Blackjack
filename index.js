@@ -7,6 +7,8 @@ const WebSocket = require("ws")
 
 const wss = new WebSocket.Server({ server:server })
 
+// TODO Calculate anticheat balance based on bet in current round
+
 
 // Serve all the static files, (ex. index.html app.js style.css)
 app.use(express.static("public/"));
@@ -263,19 +265,29 @@ wss.on("connection", (ws) => { // wsServer || wss AND request || connection
     }
 
     if (result.method === "hasLeft") {
-      const theClient = result.theClient;
+      let theClient = result.theClient;
       const players = result.players;
       const spectators = result.spectators;
+      const gameId = result.gameId;
       
       // Antycheat - theClient.balance
       // method=hasLeft pushes theClient to every spectator
-      // TODO check theClient balance against server-side theClient
+
+      let serverTheClient = null;
+      games[gameId]['players'].forEach((c) => {
+        if (c['clientId'] == theClient['clientId']){
+          serverTheClient = c;
+        }
+      });
+
+      theClient.balance = serverTheClient.balance;
 
       const payLoad = {
         method: "hasLeft",
         players: players,
         spectators: spectators,
         theClient: theClient,
+        gameId: gameId,
       };
 
       spectators.forEach((c) => {
@@ -373,6 +385,18 @@ wss.on("connection", (ws) => { // wsServer || wss AND request || connection
       const players = result.players;
       const playerSlotHTML = result.playerSlotHTML;
 
+      // Antycheat - theClient.balance
+      // method=joinTable pushes theClient to players array and every spectator
+
+      let serverTheClient = null;
+      games[gameId]['players'].forEach((c) => {
+        if (c['clientId'] == theClient['clientId']){
+          serverTheClient = c;
+        }
+      });
+
+      theClient.balance = serverTheClient.balance;
+
       // Push client to players array
       players.push(theClient);
       // Push client Id to playerSlotHTML array
@@ -388,10 +412,6 @@ wss.on("connection", (ws) => { // wsServer || wss AND request || connection
 
       game.players = players;
       game.playerSlotHTML = playerSlotHTML;
-      
-      // Antycheat - theClient.balance
-      // method=joinTable pushes theClient to players array and every spectator
-      // TODO check theClient balance against server-side theClient
 
       const payLoad = {
         method: "joinTable",
@@ -581,11 +601,20 @@ wss.on("connection", (ws) => { // wsServer || wss AND request || connection
 
     if (result.method === "resetRound") {
       const spectators = result.spectators;
-      const theClient = result.theClient;
+      let theClient = result.theClient;
+      const gameId = result.gameId;
       
       // Antycheat - theClient.balance
       // method=resetRound pushes theClient to every spectator
-      // TODO check theClient balance against server-side theClient
+
+      let serverTheClient = null;
+      games[gameId]['players'].forEach((c) => {
+        if (c['clientId'] == theClient['clientId']){
+          serverTheClient = c;
+        }
+      });
+
+      theClient.balance = serverTheClient.balance;
 
       const payLoad = {
         method: "resetRound",
