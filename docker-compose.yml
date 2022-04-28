@@ -1,0 +1,9 @@
+version: '3.6'
+services:
+        blackjack:
+                image: 'mdukat/blackjack:latest'
+                restart: always
+                hostname: 'blackjack-node'
+                ports:
+                        - '127.0.0.1:3000:3000'
+
