@@ -544,7 +544,7 @@ ws.onmessage = (message) => {
     spectators = game.spectators;
     playerSlotHTML = response.playerSlotHTML;
 
-    $("#invite-link").val(gameId);
+    $("#invite-link").val(`${location.origin}/` + gameId);
 
     // get all the names and avatars for all the players currently on the table when client joins and a player already is on a slot
     setTimeout(function () {
@@ -1431,7 +1431,7 @@ function joinByUrl() {
     // Get last 6 values from url
     const str = window.location.href;
     roomId = str.substring(str.length - 6);
-    gameId = `${location.origin}/` + roomId;
+    gameId = roomId;
 
     // To prevent bug at 714
     playerSlotIndex = [];

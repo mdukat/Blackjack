@@ -4,7 +4,6 @@ const app = express();
 const server = require("http").createServer(app);
 const PORT = process.env.PORT || 3000;
 const WebSocket = require("ws")
-const WEB_URL = PORT === 3000 ? "http://localhost:3000/" : "https://blackjack-multiplayer.herokuapp.com/";
 
 const wss = new WebSocket.Server({ server:server })
 
@@ -48,7 +47,7 @@ wss.on("connection", (ws) => { // wsServer || wss AND request || connection
       const playerSlot = result.playerSlot;
       const offline = result.offline;
       const roomId = partyId();
-      const gameId = WEB_URL + roomId;
+      const gameId = roomId;
 
       app.get("/" + roomId, (req, res) => {
         res.sendFile(__dirname + "/public/index.html");
