@@ -387,15 +387,7 @@ wss.on("connection", (ws) => { // wsServer || wss AND request || connection
 
       // Antycheat - theClient.balance
       // method=joinTable pushes theClient to players array and every spectator
-
-      let serverTheClient = null;
-      games[gameId]['players'].forEach((c) => {
-        if (c['clientId'] == theClient['clientId']){
-          serverTheClient = c;
-        }
-      });
-
-      theClient.balance = serverTheClient.balance;
+      theClient.balance = defaultBalance;
 
       // Push client to players array
       players.push(theClient);
